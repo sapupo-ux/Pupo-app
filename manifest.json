@@ -1,0 +1,18 @@
+{
+  "name": "Gestão de Conteúdo",
+  "short_name": "Conteúdo",
+  "description": "Gestão de conteúdo para redes sociais",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FAF7F2",
+  "theme_color": "#2D5247",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

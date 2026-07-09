@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Conteúdo">
+<meta name="theme-color" content="#2D5247">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>Gestão de Conteúdo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#FAF7F2;--white:#FFFFFF;--verde:#3C5A44;--verde-d:#2D5247;
+  --rosa:#D88D70;--cinza:#8A8A8A;--cinza-l:#EEEBE6;--texto:#1A1A1A;
+  --raio:14px;--raio-sm:8px;
+}
+html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--texto)}
+
+/* LAYOUT */
+#app{display:flex;flex-direction:column;height:100%;height:100dvh}
+#main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:80px}
+
+/* HEADER */
+.hdr{background:var(--verde-d);padding:env(safe-area-inset-top,16px) 16px 14px;display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
+.hdr-left h1{font-size:11px;color:var(--rosa);letter-spacing:1.5px;text-transform:uppercase;font-weight:500;margin-bottom:2px}
+.hdr-left h2{font-size:20px;color:var(--bg);font-weight:700}
+.hdr-right button{background:rgba(255,255,255,0.12);border:none;color:var(--bg);width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* CLIENTES SCROLL */
+.clientes-nav{background:var(--verde-d);padding:0 12px 12px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid rgba(255,255,255,0.08)}
+.clientes-nav::-webkit-scrollbar{display:none}
+.cli-btn{flex-shrink:0;padding:6px 14px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.2);background:transparent;color:rgba(255,255,255,0.55);font-size:13px;cursor:pointer;white-space:nowrap;transition:all .2s}
+.cli-btn.on{background:var(--rosa);border-color:var(--rosa);color:#fff;font-weight:600}
+.cli-btn-add{flex-shrink:0;width:32px;height:32px;border-radius:50%;border:1.5px dashed rgba(255,255,255,0.3);background:transparent;color:rgba(255,255,255,0.4);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* TABS */
+.tabs{display:flex;padding:12px 16px 0;gap:4px}
+.tab{flex:1;padding:8px;border:none;background:transparent;color:var(--cinza);font-size:13px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.tab.on{color:var(--verde-d);border-bottom-color:var(--verde-d);font-weight:700}
+
+/* SEÇÃO */
+.sec{padding:14px 16px}
+.sec-titulo{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--cinza);margin-bottom:10px}
+
+/* CARD ESTRATÉGIA */
+.card-estr{background:var(--verde);border-radius:var(--raio);padding:16px;margin:14px 16px 0;color:var(--bg)}
+.card-estr .label{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--rosa);font-weight:700;margin-bottom:8px}
+.card-estr p{font-size:13px;line-height:1.6;opacity:.9;margin-bottom:6px}
+.card-estr p:last-child{margin-bottom:0}
+.restricao{background:rgba(0,0,0,0.15);border-radius:6px;padding:7px 10px;font-size:12px;margin-top:6px;border-left:3px solid var(--rosa);opacity:.9}
+
+/* PALAVRAS */
+.palavras{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.palavra{background:rgba(255,255,255,0.15);border-radius:12px;padding:3px 10px;font-size:12px;color:var(--bg)}
+
+/* PALETA */
+.paleta{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.cor-item{display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(250,247,242,.8)}
+.cor-dot{width:18px;height:18px;border-radius:4px;flex-shrink:0}
+
+/* POSTS */
+.posts-lista{padding:0 16px;display:flex;flex-direction:column;gap:10px}
+
+.post-card{background:var(--white);border-radius:var(--raio);overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.07)}
+.post-head{display:flex;align-items:center;padding:12px 14px;gap:10px;cursor:pointer;position:relative}
+.post-data{background:var(--bg);border-radius:var(--raio-sm);padding:6px 10px;text-align:center;min-width:48px;flex-shrink:0}
+.post-data .d{font-size:18px;font-weight:700;color:var(--verde-d);line-height:1}
+.post-data .s{font-size:10px;color:var(--cinza);text-transform:uppercase;letter-spacing:.5px}
+.post-info{flex:1;min-width:0}
+.post-titulo{font-size:14px;font-weight:600;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tags{display:flex;gap:5px;flex-wrap:wrap}
+.tag{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500;white-space:nowrap}
+.t-fmt{background:#EDF2EE;color:var(--verde)}
+.t-obj{background:#FDF0EA;color:#B5622A}
+.t-ia{background:#F0EDF8;color:#6B4FA0}
+
+.status-btn{width:28px;height:28px;border-radius:50%;border:2px solid var(--cinza-l);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s;font-size:13px}
+.status-btn.prod{border-color:var(--rosa);background:#FDF0EA;color:var(--rosa)}
+.status-btn.pub{border-color:var(--verde);background:var(--verde);color:#fff}
+
+/* DETALHES */
+.post-body{display:none;padding:0 14px 14px;border-top:1px solid var(--bg)}
+.post-body.aberto{display:block}
+.detalhe{margin-top:12px}
+.d-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--cinza);margin-bottom:6px}
+.d-text{font-size:13px;line-height:1.55;color:var(--texto)}
+
+.slides{display:flex;flex-direction:column;gap:5px}
+.slide{background:var(--bg);border-radius:var(--raio-sm);padding:8px 10px;font-size:12px;line-height:1.4}
+.slide-n{font-weight:700;color:var(--rosa);margin-right:4px}
+
+.box{border-radius:var(--raio-sm);padding:12px;font-size:12px;line-height:1.7}
+.box-leg{background:#EFF4F0;border-left:3px solid var(--verde)}
+.box-prompt{background:var(--bg);border-left:3px solid var(--rosa)}
+.box-int{background:#FFF5F2;border-left:3px solid var(--rosa);font-size:13px;line-height:1.5}
+
+.btn-copy{display:block;width:100%;margin-top:8px;padding:9px;background:var(--verde);color:var(--bg);border:none;border-radius:var(--raio-sm);font-size:13px;font-weight:600;cursor:pointer;text-align:center}
+.btn-copy:active{background:var(--verde-d)}
+
+/* FEEDBACK */
+.feedback-area{margin-top:8px}
+.feedback-stars{display:flex;gap:6px;margin-bottom:8px}
+.star{font-size:22px;cursor:pointer;opacity:.3;transition:opacity .15s}
+.star.on{opacity:1}
+.feedback-txt{width:100%;border:1.5px solid var(--cinza-l);border-radius:var(--raio-sm);padding:10px;font-size:13px;font-family:inherit;resize:none;outline:none;background:var(--bg);height:70px}
+.feedback-txt:focus{border-color:var(--verde)}
+.btn-save-fb{margin-top:6px;padding:8px 16px;background:var(--verde);color:var(--bg);border:none;border-radius:var(--raio-sm);font-size:13px;font-weight:600;cursor:pointer}
+.feedback-saved{font-size:12px;color:var(--cinza);margin-top:6px;font-style:italic}
+
+/* AÇÕES DO POST */
+.post-acoes{display:flex;gap:8px;margin-top:12px}
+.btn-acao{flex:1;padding:8px;border-radius:var(--raio-sm);border:1.5px solid var(--cinza-l);background:transparent;color:var(--cinza);font-size:12px;cursor:pointer;font-weight:500}
+.btn-acao.danger{border-color:#FECACA;color:#DC2626}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--cinza-l);display:flex;padding:8px 0 env(safe-area-inset-bottom,12px);z-index:100}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;border:none;background:transparent;color:var(--cinza);font-size:10px;padding:4px}
+.nav-btn.on{color:var(--verde)}
+.nav-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* MODAIS */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:flex-end;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--white);border-radius:20px 20px 0 0;padding:20px 20px env(safe-area-inset-bottom,24px);width:100%;max-height:90vh;overflow-y:auto}
+.modal-titulo{font-size:16px;font-weight:700;margin-bottom:16px;color:var(--verde-d)}
+.modal-fecha{float:right;background:var(--bg);border:none;width:28px;height:28px;border-radius:50%;font-size:16px;cursor:pointer;margin-top:-2px}
+
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--cinza);margin-bottom:5px}
+.field input,.field textarea,.field select{width:100%;border:1.5px solid var(--cinza-l);border-radius:var(--raio-sm);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;background:var(--bg);color:var(--texto)}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--verde)}
+.field textarea{resize:none;height:80px}
+
+.btn-primary{width:100%;padding:14px;background:var(--verde);color:var(--bg);border:none;border-radius:var(--raio);font-size:15px;font-weight:700;cursor:pointer;margin-top:4px}
+.btn-primary:active{background:var(--verde-d)}
+.btn-secondary{width:100%;padding:12px;background:transparent;color:var(--cinza);border:1.5px solid var(--cinza-l);border-radius:var(--raio);font-size:14px;cursor:pointer;margin-top:8px}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:var(--cinza);font-size:14px;line-height:1.6}
+.empty-icon{font-size:36px;margin-bottom:10px}
+
+/* INSTALL BANNER */
+.install-banner{margin:14px 16px 0;background:var(--verde-d);border-radius:var(--raio);padding:14px;display:flex;align-items:center;gap:12px}
+.install-banner p{font-size:13px;color:var(--bg);line-height:1.4;flex:1}
+.install-banner p strong{display:block;margin-bottom:2px}
+.btn-install{flex-shrink:0;background:var(--rosa);border:none;color:#fff;padding:8px 14px;border-radius:var(--raio-sm);font-size:13px;font-weight:600;cursor:pointer}
+
+/* TELA */
+.tela{display:none}
+.tela.on{display:block}
+
+/* CHIPS STATUS LEGEND */
+.status-legend{display:flex;gap:12px;padding:10px 16px 0;font-size:11px;color:var(--cinza);align-items:center}
+.sl-item{display:flex;align-items:center;gap:4px}
+.sl-dot{width:9px;height:9px;border-radius:50%}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="hdr">
+    <div class="hdr-left">
+      <h1>Gestão de Conteúdo</h1>
+      <h2>Sabrina Pupo</h2>
+    </div>
+    <div class="hdr-right">
+      <button onclick="abrirConfigGeral()" title="Configurações">⚙</button>
+    </div>
+  </div>
+
+  <div class="clientes-nav" id="clientes-nav"></div>
+
+  <div id="main">
+    <!-- TELA CALENDÁRIO -->
+    <div class="tela on" id="tela-cal">
+      <div class="tabs">
+        <button class="tab on" onclick="trocarTab('posts')">Posts</button>
+        <button class="tab" onclick="trocarTab('estrategia')">Estratégia</button>
+      </div>
+      <div id="tab-posts">
+        <div class="status-legend">
+          <span>Status:</span>
+          <div class="sl-item"><div class="sl-dot" style="border:2px solid var(--cinza-l)"></div>Pendente</div>
+          <div class="sl-item"><div class="sl-dot" style="background:#FDF0EA;border:2px solid var(--rosa)"></div>Produção</div>
+          <div class="sl-item"><div class="sl-dot" style="background:var(--verde)"></div>Publicado</div>
+        </div>
+        <div class="sec">
+          <div id="lista-posts"></div>
+        </div>
+        <div style="padding:0 16px 16px">
+          <button class="btn-primary" style="background:var(--rosa)" onclick="abrirModalPost(null)">+ Novo Post</button>
+        </div>
+      </div>
+      <div id="tab-estrategia" style="display:none">
+        <div id="conteudo-estrategia"></div>
+        <div style="padding:0 16px 16px">
+          <button class="btn-primary" style="background:var(--rosa)" onclick="editarEstrategia()">Editar Estratégia</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TELA CLIENTES -->
+    <div class="tela" id="tela-clientes">
+      <div class="sec">
+        <div class="sec-titulo">Seus Clientes</div>
+        <div id="lista-clientes-mgmt"></div>
+        <button class="btn-primary" style="background:var(--rosa);margin-top:12px" onclick="abrirModalCliente(null)">+ Novo Cliente</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn on" id="nav-cal" onclick="trocarTela('cal')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+      Calendário
+    </button>
+    <button class="nav-btn" id="nav-clientes" onclick="trocarTela('clientes')">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Clientes
+    </button>
+  </div>
+</div>
+
+<!-- MODAL: NOVO/EDITAR POST -->
+<div class="overlay" id="modal-post">
+  <div class="modal">
+    <button class="modal-fecha" onclick="fecharModal('modal-post')">✕</button>
+    <div class="modal-titulo" id="modal-post-titulo">Novo Post</div>
+    <div class="field"><label>Data</label><input type="date" id="f-data"></div>
+    <div class="field"><label>Título / Tema</label><input type="text" id="f-titulo" placeholder="Ex: Julho tem só 4 fins de semana"></div>
+    <div class="field"><label>Formato</label>
+      <select id="f-formato">
+        <option>Carrossel</option><option>Reel</option><option>Foto única</option><option>Story</option><option>Vídeo</option>
+      </select>
+    </div>
+    <div class="field"><label>Objetivo</label><input type="text" id="f-objetivo" placeholder="Ex: Urgência, Save, Alcance..."></div>
+    <div class="field"><label>IA recomendada</label>
+      <select id="f-ia">
+        <option>Nano Banana</option><option>ChatGPT</option><option>YouTube Create</option><option>Canva IA</option><option>Outra</option>
+      </select>
+    </div>
+    <div class="field"><label>Intenção estratégica</label><textarea id="f-intencao" placeholder="Por que esse post? O que queremos provocar no público?"></textarea></div>
+    <div class="field"><label>Slides / Estrutura</label><textarea id="f-slides" placeholder="S1: Texto do slide 1&#10;S2: Texto do slide 2..."></textarea></div>
+    <div class="field"><label>Legenda</label><textarea id="f-legenda" placeholder="Texto completo da legenda com hashtags..."></textarea></div>
+    <div class="field"><label>Prompt para a IA</label><textarea id="f-prompt" placeholder="Prompt completo para gerar o design..."></textarea></div>
+    <button class="btn-primary" onclick="salvarPost()">Salvar Post</button>
+    <button class="btn-secondary" id="btn-del-post" onclick="deletarPostAtual()" style="color:#DC2626;border-color:#FECACA;display:none">Apagar Post</button>
+    <button class="btn-secondary" onclick="fecharModal('modal-post')">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL: NOVO/EDITAR CLIENTE -->
+<div class="overlay" id="modal-cliente">
+  <div class="modal">
+    <button class="modal-fecha" onclick="fecharModal('modal-cliente')">✕</button>
+    <div class="modal-titulo" id="modal-cli-titulo">Novo Cliente</div>
+    <div class="field"><label>Nome do Cliente</label><input type="text" id="f-cli-nome" placeholder="Ex: Casa Flor do Mar"></div>
+    <div class="field"><label>Emoji / Ícone</label><input type="text" id="f-cli-emoji" placeholder="Ex: 🌸" maxlength="4"></div>
+    <div class="field"><label>Instagram (@)</label><input type="text" id="f-cli-ig" placeholder="Ex: casaflordomar.sp"></div>
+    <div class="field"><label>Posicionamento</label><textarea id="f-cli-pos" placeholder="Conceito central da marca..."></textarea></div>
+    <div class="field"><label>Palavras-chave da marca (separadas por vírgula)</label><input type="text" id="f-cli-palavras" placeholder="Ex: Desacelerar, Família, Natureza"></div>
+    <div class="field"><label>Paleta de cores</label><input type="text" id="f-cli-paleta" placeholder="Ex: Verde #3C5A44 · Rosa #D88D70 · Creme #FAF7F2"></div>
+    <div class="field"><label>Restrições / Atenções</label><textarea id="f-cli-rest" placeholder="O que NUNCA fazer neste perfil..."></textarea></div>
+    <div class="field"><label>Frequência de postagem</label><input type="text" id="f-cli-freq" placeholder="Ex: Terças e quintas"></div>
+    <button class="btn-primary" onclick="salvarCliente()">Salvar Cliente</button>
+    <button class="btn-secondary" id="btn-del-cli" onclick="deletarClienteAtual()" style="color:#DC2626;border-color:#FECACA;display:none">Remover Cliente</button>
+    <button class="btn-secondary" onclick="fecharModal('modal-cliente')">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL: EDITAR ESTRATÉGIA -->
+<div class="overlay" id="modal-estr">
+  <div class="modal">
+    <button class="modal-fecha" onclick="fecharModal('modal-estr')">✕</button>
+    <div class="modal-titulo">Estratégia do Mês</div>
+    <div class="field"><label>Foco do mês</label><input type="text" id="f-estr-foco" placeholder="Ex: Julho = alta temporada. Urgência + save"></div>
+    <div class="field"><label>Regras de conteúdo</label><textarea id="f-estr-regras" placeholder="Ex: Nunca dois posts no mesmo dia&#10;Nunca sem legenda..."></textarea></div>
+    <div class="field"><label>Observações extras</label><textarea id="f-estr-obs" placeholder="Qualquer contexto importante..."></textarea></div>
+    <button class="btn-primary" onclick="salvarEstrategia()">Salvar</button>
+    <button class="btn-secondary" onclick="fecharModal('modal-estr')">Cancelar</button>
+  </div>
+</div>
+
+<script>
+// ─── DADOS ────────────────────────────────────────────────
+const DEF = {
+  clientes: [
+    {
+      id:'flor', nome:'Casa Flor do Mar', emoji:'🌸', ig:'casaflordomar.sp',
+      posicionamento:'"A casa é apenas o cenário. O que importa acontece dentro dela." — Airbnb em Peruíbe · 3 quartos · Quintal e churrasqueira · 5 min da praia',
+      palavras:'Desacelerar,Convivência,Família,Natureza,Leveza,Acolhimento,Memórias,Praticidade',
+      paleta:'Verde #3C5A44 · Rosa #D88D70 · Creme #FAF7F2 · Verde Escuro #2D5247',
+      restricoes:'Não destacar jardim visualmente\nNunca dois posts no mesmo dia\nNunca postar sem legenda\nNunca prometer vista para o mar\nNão usar flores como elemento gráfico dominante',
+      freq:'Terças e quintas',
+      estrategia:{foco:'Julho = alta temporada. Foco em urgência + save + primeiro Reel do perfil.',regras:'Nunca dois posts no mesmo dia\nNunca postar sem legenda\nResponder comentários em até 30 min após publicação\nInteragir 10x/dia em #peruibe e #litoralsul',obs:'Proprietária (Alice) não pode postar sem alinhamento prévio — episódio 09/06 causou queda de 63% no reach.'}
+    },
+    {
+      id:'amarela', nome:'Casa Amarela', emoji:'🌟', ig:'casaamarela407',
+      posicionamento:'Casa de temporada em Peruíbe · Diferencial: 150m da praia · Slow living',
+      palavras:'Descanso,Mar,Família,Silêncio,Proximidade',
+      paleta:'Amarelo #F5C842 · Verde #3C5A44 · Branco #FFFFFF',
+      restricoes:'Evitar fórmula "lista de dicas" — já saturada\nNão repetir o mesmo ângulo de post',
+      freq:'Conforme combinado com cliente',
+      estrategia:{foco:'Reverter queda de reach com Reels e CTA de comentário.',regras:'Evitar carrosséis de dicas genéricas\nPriorizar Reels\nSempre CTA de comentário específico',obs:'Reach caiu de 317 para 18 entre abril e junho. Fórmula de "lista de dicas" saturou a audiência.'}
+    },
+    {
+      id:'karla', nome:'Karla Fernandes', emoji:'💼', ig:'karla.consorcio',
+      posicionamento:'Consultora de consórcio Ademicon · Educação financeira · Público: pessoas que querem conquistar bens sem juros',
+      palavras:'Conquista,Planejamento,Educação,Confiança,Resultado',
+      paleta:'Grafite #2A2A2A · Vermelho #C0392B · Branco #FFFFFF',
+      restricoes:'Evitar jargão técnico sem explicar\nNunca usar "taxa", "lance", "contemplação" sem contexto',
+      freq:'Terças e quintas',
+      estrategia:{foco:'Educar sobre consórcio de forma acessível. Reativar dor antes de mostrar solução.',regras:'Sempre reativar a dor no gancho\nEvitar termos técnicos sem explicar\nCTA direto ao final',obs:'Conta construída do zero. Identidade visual: grafite + vermelho escuro.'}
+    },
+    {
+      id:'deuseni', nome:'Deuseni Borges', emoji:'📊', ig:'deuseniborges',
+      posicionamento:'Consultora de consórcio Ademicon · Foco em investidores de alto capital',
+      palavras:'Autoridade,Investimento,Crescimento,Resultado,Confiança',
+      paleta:'Dourado #C9A84C · Preto #1A1A1A · Branco #FFFFFF',
+      restricoes:'Alinhar tom com ambição de alto investimento\nNão parecer genérico',
+      freq:'A definir',
+      estrategia:{foco:'Construir autoridade e gerar leads qualificados.',regras:'Conteúdo educativo + prova social\nTom sofisticado, não popular',obs:'Atenção ao alinhamento entre o plano estratégico e a real ambição da cliente (alto capital).'}
+    }
+  ],
+  posts: {
+    flor: [
+      {id:'f1',data:'2026-07-01',titulo:'Tem lugares que a gente não esquece',formato:'Carrossel',objetivo:'Identidade',ia:'Nano Banana',status:'pub',
+       intencao:'Abrir o mês reforçando a identidade emocional da marca. Objetivo: save e identificação. Público ainda pequeno, precisamos que quem vê salve pra lembrar.',
+       slides:'S1: Tem lugares que a gente não esquece. Não pelo que tinha. Pelo que fez sentir.\nS2: Espaço pra todo mundo junto. Sem aperto, sem compromisso. (foto sala)\nS3: O churrasco no quintal que vira o melhor momento do fim de semana. (foto quintal)\nS4: 3 quartos · churrasqueira · 5 min da praia. Julho ainda tem data aberta.\nS5: 💾 Salva pra não esquecer. 🔗 Link na bio.',
+       legenda:'Às vezes a gente esquece como é ter um dia sem agenda.\nNa Casa Flor do Mar, esse é o padrão.\n📍 Peruíbe, SP · 🛏️ 3 quartos · 🔗 Link na bio\n\nMarca aqui quem você levaria. 👇\n\n#peruibe #casadetemporada #feriasemfamilia #litoralsul #casaflordomar',
+       prompt:'Crie um carrossel de 5 slides para Instagram. Paleta: creme #FAF7F2, verde #3C5A44, rosa #D88D70. Tipografia serifada elegante nos títulos. Slide 1: fundo creme, texto grande "Tem lugares que a gente não esquece / Não pelo que tinha. / Pelo que fez sentir." Slides 2 e 3: foto real da casa com faixa creme embaixo e texto descritivo. Slide 4: fundo verde escuro, texto creme com dados práticos. Slide 5: fundo creme, logo centralizada, ícones de save e link. Estética: revista de lifestyle, minimalista, 40% de respiro visual. Sem flores como elemento gráfico.',
+       feedback:{nota:0,texto:''}},
+      {id:'f2',data:'2026-07-03',titulo:'Julho tem só 4 fins de semana',formato:'Carrossel',objetivo:'Urgência',ia:'ChatGPT',status:'pend',
+       intencao:'Criar urgência real de julho. Quem ainda não reservou está em modo de pesquisa agora. Esse post aparece como razão concreta para agir logo.',
+       slides:'S1: Julho tem apenas 4 fins de semana.\nS2: Cada um é uma chance de parar tudo e ir.\nS3: A Casa Flor do Mar ainda tem datas. (foto quintal)\nS4: Depois de julho, só em dezembro. 💾 Salva e reserva.',
+       legenda:'4 fins de semana. É tudo que julho tem.\n\nA Casa Flor do Mar ainda tem datas abertas — mas não por muito tempo.\n\n📍 Peruíbe, SP · 🔗 Link na bio\n\nQuantos fins de semana você já deixou passar? Comenta. 👇\n\n#peruibe #feriasemfamilia #casadetemporada #julho #casaflordomar',
+       prompt:'Crie carrossel de 4 slides. Casa de temporada em Peruíbe chamada Casa Flor do Mar. Paleta: creme #FAF7F2, verde escuro #2D5247, rosa #D88D70. Tom: emocional e urgente. S1: "Julho tem apenas 4 fins de semana." S2: "Cada um é uma chance de parar tudo e ir." S3: foto da casa + "A Casa Flor do Mar ainda tem datas." S4: "Depois de julho, só em dezembro. Salva e reserva." Tipografia serifada. Fundo creme. Sem flores gráficas.',
+       feedback:{nota:0,texto:''}},
+      {id:'f3',data:'2026-07-08',titulo:'Primeiro Reel — Tour visual',formato:'Reel',objetivo:'Alcance',ia:'YouTube Create',status:'pend',
+       intencao:'Primeiro Reel do perfil. Único formato que o Instagram distribui ativamente para não seguidores. Objetivo: alcance e novos seguidores.',
+       slides:'1. Fachada/exterior — "Peruíbe te espera."\n2. Sala — "Espaço pra todo mundo."\n3. Quintal/churrasqueira — "Churrasco no quintal."\n4. Quarto — "3 quartos. Sem aperto."\n5. Exterior — "Casa Flor do Mar · Link na bio."',
+       legenda:'Essa é a Casa Flor do Mar. Seu próximo destino em Peruíbe. 🌊\n\n📍 5 min da praia · 🛏️ 3 quartos · 🔗 Link na bio\n\nComenta: qual cômodo você escolheria primeiro? 👇\n\n#peruibe #casadetemporada #litoralsul #airbnbbrasil #casaflordomar',
+       prompt:'Crie Reel de 20-25 segundos com fotos nessa ordem: fachada, sala, quintal, quarto, exterior. Transição suave (fade). Zoom leve em cada foto (Ken Burns). Ritmo calmo. Texto serifado cor creme #FAF7F2 parte inferior: foto1 "Peruíbe te espera." foto2 "Espaço pra todo mundo." foto3 "Churrasco no quintal." foto4 "3 quartos. Sem aperto." foto5 "Casa Flor do Mar · Link na bio." Música instrumental calma trending sem letra. Formato vertical 9:16.',
+       feedback:{nota:0,texto:''}},
+      {id:'f4',data:'2026-07-10',titulo:'Roteiro de praias de Peruíbe',formato:'Carrossel',objetivo:'Save',ia:'Nano Banana',status:'pend',
+       intencao:'Atender pedido da cliente de mostrar Peruíbe. Formato guia de viagem tem o maior potencial de save do nicho — pessoas guardam pra consultar quando planejarem a viagem.',
+       slides:'S1: "Antes de voltar pra casa, passe aqui.." (pôr do sol)\nS2: Praia do Caramborê (foto Unsplash)\nS3: Prainha (foto Unsplash)\nS4: Praia do Guaraú (foto Unsplash)\nS5: Praia do Costão (foto Unsplash)\nS6: "Salva esse roteiro. A Casa Flor do Mar te espera."',
+       legenda:'Peruíbe não é só uma praia. São várias — cada uma com um jeito diferente de te fazer desacelerar.\n\n💾 Salva esse roteiro pra próxima viagem.\n📍 Link na bio pra ver a Casa Flor do Mar.\n\nQual você visitaria primeiro? 👇\n\n#peruibe #praiasp #litoralsul #roteirodeviagem #casaflordomar',
+       prompt:'',feedback:{nota:0,texto:''}},
+      {id:'f5',data:'2026-07-15',titulo:'Um dia perfeito em Peruíbe',formato:'Carrossel',objetivo:'Identificação',ia:'ChatGPT',status:'pend',
+       intencao:'Roteiro emocional de como seria um dia na casa. Conteúdo aspiracional que as pessoas guardam pra sonhar antes de reservar. Alto potencial de save.',
+       slides:'S1: "Como seria o seu dia perfeito em Peruíbe?"\nS2: "Acordar sem despertador. Café no seu ritmo." (sala/cozinha)\nS3: "A manhã inteira pra decidir: praia agora ou praia depois?"\nS4: "Almoço no quintal. Churrasco, conversa, sem relógio." (quintal)\nS5: "Esse dia existe. 💾 Salva pra planejar. 🔗 Link na bio."',
+       legenda:'Às vezes a gente esquece como é ter um dia sem agenda.\n\nNa Casa Flor do Mar, esse é o padrão.\n\n📍 Peruíbe, SP · 🛏️ 3 quartos · 🔗 Link na bio\n\nManda esse post pra quem você quer levar. 👇\n\n#peruibe #casadetemporada #feriasemfamilia #litoralsul #casaflordomar',
+       prompt:'',feedback:{nota:0,texto:''}},
+      {id:'f6',data:'2026-07-17',titulo:'A Casa foi feita para quem...',formato:'Carrossel',objetivo:'Compartilhamento',ia:'Nano Banana',status:'pend',
+       intencao:'Identificação forte. Quando alguém se reconhece no perfil do hóspede ideal, marca alguém ou compartilha. Objetivo: primeiro compartilhamento orgânico real.',
+       slides:'S1: "A Casa Flor do Mar foi feita para quem..."\nS2: "...prefere churrasco no quintal a fila no restaurante."\nS3: "...quer acordar sem despertador pelo menos uma vez no ano."\nS4: "...sabe que as melhores conversas não têm hora pra acabar."\nS5: "Esse é você? Link na bio. 🔗"',
+       legenda:'Nem todo mundo precisa de resort.\n\nTem gente que só quer um quintal, um churrasco e ninguém com pressa.\n\n📍 Peruíbe, SP · 🔗 Link na bio\n\nMarca aqui quem também é assim. 👇\n\n#peruibe #casadetemporada #feriasemfamilia #casaflordomar #litoralsul',
+       prompt:'',feedback:{nota:0,texto:''}},
+      {id:'f7',data:'2026-07-22',titulo:'Julho está acabando',formato:'Carrossel',objetivo:'Conversão',ia:'ChatGPT',status:'pend',
+       intencao:'Urgência máxima. Final de julho = última janela antes do segundo semestre. CTA direto de conversão via comentário.',
+       slides:'S1: "Julho está acabando."\nS2: "E com ele, a última chance de desacelerar antes do segundo semestre."\nS3: "Ainda tem data. Mas não por muito tempo." (exterior)\nS4: "🔗 Link na bio. Garante a sua."',
+       legenda:'Julho tem pouco tempo — e a Casa Flor do Mar também.\n\nÚltimas datas abertas antes do fim da temporada.\n\n📍 Peruíbe, SP · 🔗 Link na bio\n\nComenta JULHO que te mando as datas disponíveis. 👇\n\n#peruibe #casadetemporada #julho #litoralsul #casaflordomar',
+       prompt:'',feedback:{nota:0,texto:''}},
+      {id:'f8',data:'2026-07-24',titulo:'Agosto e os feriados que vêm',formato:'Carrossel',objetivo:'Aquecimento',ia:'ChatGPT',status:'pend',
+       intencao:'Manter o perfil ativo após o pico de julho. Plantar semente para agosto sem deixar o perfil morrer no final do mês.',
+       slides:'S1: "Julho passou rápido, né?"\nS2: "Mas o litoral não vai a lugar nenhum."\nS3: "Agosto tem feriados. E a Casa Flor do Mar tem datas."\nS4: "💾 Salva pra planejar o próximo escape."',
+       legenda:'Julho acabou. Mas o descanso não precisa acabar com ele.\n\nAgosto tem feriados — e a Casa Flor do Mar tem datas abertas.\n\n📍 Peruíbe, SP · 🔗 Link na bio\n\nQual feriado você quer usar pra descansar? Comenta. 👇\n\n#peruibe #casadetemporada #agosto #feriado #casaflordomar',
+       prompt:'',feedback:{nota:0,texto:''}}
+    ],
+    amarela:[],karla:[],deuseni:[]
+  }
+};
+
+// ─── ESTADO ────────────────────────────────────────────────
+let D, clienteAtual = 'flor', tabAtual = 'posts', postEditando = null, cliEditando = null;
+
+function carregar() {
+  try { const s = localStorage.getItem('gestao_v2'); D = s ? JSON.parse(s) : JSON.parse(JSON.stringify(DEF)); }
+  catch(e) { D = JSON.parse(JSON.stringify(DEF)); }
+  if (!D.posts) D.posts = {};
+  D.clientes.forEach(c => { if (!D.posts[c.id]) D.posts[c.id] = []; });
+}
+
+function salvar() { try { localStorage.setItem('gestao_v2', JSON.stringify(D)); } catch(e){} }
+
+function cli() { return D.clientes.find(c => c.id === clienteAtual); }
+function postsCliente() { return (D.posts[clienteAtual] || []).sort((a,b) => a.data.localeCompare(b.data)); }
+
+// ─── RENDER ────────────────────────────────────────────────
+function render() {
+  renderNav();
+  renderConteudo();
+  renderClientesMgmt();
+}
+
+function renderNav() {
+  const nav = document.getElementById('clientes-nav');
+  nav.innerHTML = D.clientes.map(c =>
+    `<button class="cli-btn ${c.id===clienteAtual?'on':''}" onclick="trocarCliente('${c.id}')">${c.emoji} ${c.nome.split(' ')[0]}</button>`
+  ).join('') + `<button class="cli-btn-add" onclick="abrirModalCliente(null)">+</button>`;
+}
+
+function renderConteudo() {
+  if (tabAtual === 'posts') renderPosts();
+  else renderEstrategia();
+}
+
+function fmtData(iso) {
+  if (!iso) return '—';
+  const [y,m,d] = iso.split('-');
+  const dias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const dt = new Date(+y,+m-1,+d);
+  return {dia:d, sem:dias[dt.getDay()]};
+}
+
+function renderPosts() {
+  const posts = postsCliente();
+  const cont = document.getElementById('lista-posts');
+  if (!posts.length) {
+    cont.innerHTML = `<div class="empty"><div class="empty-icon">📅</div>Nenhum post ainda.<br>Toque em "+ Novo Post" para começar.</div>`;
+    return;
+  }
+
+  const meses = {};
+  posts.forEach(p => {
+    const mes = p.data ? p.data.substring(0,7) : 'sem-data';
+    if (!meses[mes]) meses[mes] = [];
+    meses[mes].push(p);
+  });
+
+  cont.innerHTML = Object.entries(meses).map(([mes, ps]) => {
+    const [y,m] = mes.split('-');
+    const nomeMes = m ? new Date(+y,+m-1,1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'}) : 'Sem data';
+    return `<div class="sec-titulo" style="margin-bottom:8px">${nomeMes.charAt(0).toUpperCase()+nomeMes.slice(1)}</div>` +
+    ps.map(p => {
+      const dt = fmtData(p.data);
+      const stClass = p.status==='pub'?'pub':p.status==='prod'?'prod':'';
+      const stIcon = p.status==='pub'?'✓':p.status==='prod'?'⏳':'';
+      return `<div class="post-card" style="margin-bottom:10px">
+        <div class="post-head" onclick="togglePost('${p.id}')">
+          <div class="post-data"><div class="d">${dt.dia}</div><div class="s">${dt.sem}</div></div>
+          <div class="post-info">
+            <div class="post-titulo">${p.titulo}</div>
+            <div class="tags">
+              <span class="tag t-fmt">${p.formato}</span>
+              <span class="tag t-obj">${p.objetivo}</span>
+              ${p.ia?`<span class="tag t-ia">${p.ia}</span>`:''}
+            </div>
+          </div>
+          <button class="status-btn ${stClass}" onclick="ciclarStatus(event,'${p.id}')">${stIcon}</button>
+        </div>
+        <div class="post-body" id="body-${p.id}">
+          ${p.intencao?`<div class="detalhe"><div class="d-label">Intenção Estratégica</div><div class="box box-int">${p.intencao}</div></div>`:''}
+          ${p.slides?`<div class="detalhe"><div class="d-label">Slides / Estrutura</div><div class="slides">${p.slides.split('\n').map(s=>`<div class="slide">${s}</div>`).join('')}</div></div>`:''}
+          ${p.legenda?`<div class="detalhe"><div class="d-label">Legenda</div><div class="box box-leg">${p.legenda.replace(/\n/g,'<br>')}</div><button class="btn-copy" onclick="copiar(this,\`${p.legenda.replace(/`/g,"'")}\`)">Copiar Legenda</button></div>`:''}
+          ${p.prompt?`<div class="detalhe"><div class="d-label">Prompt — ${p.ia}</div><div class="box box-prompt">${p.prompt}</div><button class="btn-copy" onclick="copiar(this,\`${p.prompt.replace(/`/g,"'")}\`)">Copiar Prompt</button></div>`:''}
+          <div class="detalhe">
+            <div class="d-label">Feedback do Post</div>
+            <div class="feedback-area">
+              <div class="feedback-stars" id="stars-${p.id}">
+                ${[1,2,3,4,5].map(n=>`<span class="star ${p.feedback&&p.feedback.nota>=n?'on':''}" onclick="setStar('${p.id}',${n})">★</span>`).join('')}
+              </div>
+              <textarea class="feedback-txt" id="fb-${p.id}" placeholder="O que funcionou? O que melhorar?">${p.feedback?p.feedback.texto:''}</textarea>
+              <button class="btn-save-fb" onclick="salvarFeedback('${p.id}')">Salvar Feedback</button>
+              ${p.feedback&&p.feedback.texto?`<div class="feedback-saved">✓ Feedback salvo</div>`:''}
+            </div>
+          </div>
+          <div class="post-acoes">
+            <button class="btn-acao" onclick="abrirModalPost('${p.id}')">✏️ Editar</button>
+            <button class="btn-acao danger" onclick="deletarPost('${p.id}')">🗑 Apagar</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }).join('');
+}
+
+function renderEstrategia() {
+  const c = cli();
+  if (!c) return;
+  const e = c.estrategia || {};
+  const palavras = (c.palavras||'').split(',').map(p=>p.trim()).filter(Boolean);
+  const restricoes = (c.restricoes||'').split('\n').filter(Boolean);
+
+  document.getElementById('conteudo-estrategia').innerHTML = `
+    <div style="padding:14px 16px 0">
+
+      <div style="background:var(--verde);border-radius:var(--raio);padding:16px;margin-bottom:12px;color:var(--bg)">
+        <div class="label" style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--rosa);font-weight:700;margin-bottom:8px">Foco do Mês</div>
+        <p style="font-size:14px;line-height:1.5">${e.foco||'Não definido'}</p>
+      </div>
+
+      <div style="background:var(--white);border-radius:var(--raio);padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <div class="sec-titulo">Posicionamento</div>
+        <p style="font-size:13px;line-height:1.55;color:var(--texto)">${c.posicionamento||'—'}</p>
+      </div>
+
+      ${palavras.length?`<div style="background:var(--white);border-radius:var(--raio);padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <div class="sec-titulo">Palavras da Marca</div>
+        <div class="palavras">${palavras.map(p=>`<span class="palavra" style="background:#EDF2EE;color:var(--verde);border-radius:12px;padding:3px 10px;font-size:12px">${p}</span>`).join('')}</div>
+      </div>`:''}
+
+      ${c.paleta?`<div style="background:var(--white);border-radius:var(--raio);padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <div class="sec-titulo">Paleta de Cores</div>
+        <p style="font-size:13px;color:var(--cinza)">${c.paleta}</p>
+      </div>`:''}
+
+      ${restricoes.length?`<div style="background:var(--white);border-radius:var(--raio);padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <div class="sec-titulo">Regras & Restrições</div>
+        ${restricoes.map(r=>`<div class="restricao" style="background:#FFF5F2;border-radius:6px;padding:7px 10px;font-size:12px;margin-bottom:6px;border-left:3px solid var(--rosa);color:#B5622A">⚠️ ${r}</div>`).join('')}
+      </div>`:''}
+
+      ${e.regras?`<div style="background:var(--white);border-radius:var(--raio);padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <div class="sec-titulo">Regras de Conteúdo</div>
+        ${e.regras.split('\n').filter(Boolean).map(r=>`<p style="font-size:13px;color:var(--texto);margin-bottom:6px;padding-left:12px;border-left:2px solid var(--cinza-l)">→ ${r}</p>`).join('')}
+      </div>`:''}
+
+      ${e.obs?`<div style="background:#FFFBF5;border-radius:var(--raio);padding:16px;margin-bottom:12px;border:1px solid #F5E6C8">
+        <div class="sec-titulo">Observações</div>
+        <p style="font-size:13px;color:var(--texto);line-height:1.55">${e.obs}</p>
+      </div>`:''}
+
+      ${c.freq?`<div style="background:var(--white);border-radius:var(--raio);padding:14px 16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;gap:10px">
+        <span style="font-size:20px">📅</span>
+        <div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--cinza);margin-bottom:2px">Frequência</div>
+          <div style="font-size:14px;font-weight:600;color:var(--verde-d)">${c.freq}</div>
+        </div>
+      </div>`:''}
+    </div>`;
+}
+
+function renderClientesMgmt() {
+  const cont = document.getElementById('lista-clientes-mgmt');
+  cont.innerHTML = D.clientes.map(c => `
+    <div style="background:var(--white);border-radius:var(--raio);padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;gap:12px;cursor:pointer" onclick="abrirModalCliente('${c.id}')">
+      <div style="font-size:28px">${c.emoji}</div>
+      <div style="flex:1">
+        <div style="font-size:15px;font-weight:700;margin-bottom:2px">${c.nome}</div>
+        <div style="font-size:12px;color:var(--cinza)">@${c.ig||'—'} · ${(D.posts[c.id]||[]).length} posts</div>
+      </div>
+      <div style="font-size:18px;color:var(--cinza-l)">›</div>
+    </div>`).join('');
+}
+
+// ─── INTERAÇÕES ────────────────────────────────────────────
+function trocarCliente(id) {
+  clienteAtual = id;
+  render();
+}
+
+function trocarTab(tab) {
+  tabAtual = tab;
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('on', ['posts','estrategia'][i]===tab));
+  document.getElementById('tab-posts').style.display = tab==='posts'?'block':'none';
+  document.getElementById('tab-estrategia').style.display = tab==='estrategia'?'block':'none';
+  renderConteudo();
+}
+
+function trocarTela(tela) {
+  document.querySelectorAll('.tela').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('tela-'+tela).classList.add('on');
+  document.getElementById('nav-'+tela).classList.add('on');
+}
+
+function togglePost(id) {
+  const body = document.getElementById('body-'+id);
+  if (body) body.classList.toggle('aberto');
+}
+
+function ciclarStatus(e, id) {
+  e.stopPropagation();
+  const posts = D.posts[clienteAtual];
+  const p = posts.find(x => x.id===id);
+  if (!p) return;
+  p.status = p.status==='pend'?'prod':p.status==='prod'?'pub':'pend';
+  salvar();
+  renderPosts();
+}
+
+function setStar(postId, nota) {
+  const posts = D.posts[clienteAtual];
+  const p = posts.find(x => x.id===postId);
+  if (!p) return;
+  if (!p.feedback) p.feedback = {nota:0,texto:''};
+  p.feedback.nota = nota;
+  salvar();
+  document.querySelectorAll(`#stars-${postId} .star`).forEach((s,i) => s.classList.toggle('on', i<nota));
+}
+
+function salvarFeedback(postId) {
+  const posts = D.posts[clienteAtual];
+  const p = posts.find(x => x.id===postId);
+  if (!p) return;
+  if (!p.feedback) p.feedback = {nota:0,texto:''};
+  p.feedback.texto = document.getElementById('fb-'+postId).value;
+  salvar();
+  renderPosts();
+  setTimeout(() => {
+    const body = document.getElementById('body-'+postId);
+    if (body) body.classList.add('aberto');
+  }, 50);
+}
+
+function copiar(btn, texto) {
+  navigator.clipboard.writeText(texto).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copiado!';
+    btn.style.background = 'var(--verde-d)';
+    setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 2000);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = texto; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    btn.textContent = '✓ Copiado!';
+    setTimeout(() => btn.textContent = btn.textContent.includes('Legenda') ? 'Copiar Legenda' : 'Copiar Prompt', 2000);
+  });
+}
+
+// ─── MODAIS POST ────────────────────────────────────────────
+function abrirModalPost(id) {
+  postEditando = id;
+  const p = id ? (D.posts[clienteAtual]||[]).find(x=>x.id===id) : null;
+  document.getElementById('modal-post-titulo').textContent = id ? 'Editar Post' : 'Novo Post';
+  document.getElementById('f-data').value = p?.data||'';
+  document.getElementById('f-titulo').value = p?.titulo||'';
+  document.getElementById('f-formato').value = p?.formato||'Carrossel';
+  document.getElementById('f-objetivo').value = p?.objetivo||'';
+  document.getElementById('f-ia').value = p?.ia||'Nano Banana';
+  document.getElementById('f-intencao').value = p?.intencao||'';
+  document.getElementById('f-slides').value = p?.slides||'';
+  document.getElementById('f-legenda').value = p?.legenda||'';
+  document.getElementById('f-prompt').value = p?.prompt||'';
+  document.getElementById('btn-del-post').style.display = id ? 'block' : 'none';
+  abrirModal('modal-post');
+}
+
+function salvarPost() {
+  const titulo = document.getElementById('f-titulo').value.trim();
+  if (!titulo) return alert('Título obrigatório');
+  if (!D.posts[clienteAtual]) D.posts[clienteAtual] = [];
+  const posts = D.posts[clienteAtual];
+  if (postEditando) {
+    const idx = posts.findIndex(x=>x.id===postEditando);
+    if (idx>-1) {
+      posts[idx] = {...posts[idx],
+        data:document.getElementById('f-data').value,
+        titulo, formato:document.getElementById('f-formato').value,
+        objetivo:document.getElementById('f-objetivo').value,
+        ia:document.getElementById('f-ia').value,
+        intencao:document.getElementById('f-intencao').value,
+        slides:document.getElementById('f-slides').value,
+        legenda:document.getElementById('f-legenda').value,
+        prompt:document.getElementById('f-prompt').value
+      };
+    }
+  } else {
+    posts.push({
+      id:'p'+Date.now(),
+      data:document.getElementById('f-data').value,
+      titulo, formato:document.getElementById('f-formato').value,
+      objetivo:document.getElementById('f-objetivo').value,
+      ia:document.getElementById('f-ia').value,
+      intencao:document.getElementById('f-intencao').value,
+      slides:document.getElementById('f-slides').value,
+      legenda:document.getElementById('f-legenda').value,
+      prompt:document.getElementById('f-prompt').value,
+      status:'pend', feedback:{nota:0,texto:''}
+    });
+  }
+  salvar(); fecharModal('modal-post'); renderPosts();
+}
+
+function deletarPostAtual() {
+  if (!postEditando) return;
+  deletarPost(postEditando);
+  fecharModal('modal-post');
+}
+
+function deletarPost(id) {
+  if (!confirm('Apagar este post?')) return;
+  D.posts[clienteAtual] = (D.posts[clienteAtual]||[]).filter(x=>x.id!==id);
+  salvar(); renderPosts();
+}
+
+// ─── MODAIS CLIENTE ────────────────────────────────────────
+function abrirModalCliente(id) {
+  cliEditando = id;
+  const c = id ? D.clientes.find(x=>x.id===id) : null;
+  document.getElementById('modal-cli-titulo').textContent = id ? 'Editar Cliente' : 'Novo Cliente';
+  document.getElementById('f-cli-nome').value = c?.nome||'';
+  document.getElementById('f-cli-emoji').value = c?.emoji||'';
+  document.getElementById('f-cli-ig').value = c?.ig||'';
+  document.getElementById('f-cli-pos').value = c?.posicionamento||'';
+  document.getElementById('f-cli-palavras').value = c?.palavras||'';
+  document.getElementById('f-cli-paleta').value = c?.paleta||'';
+  document.getElementById('f-cli-rest').value = c?.restricoes||'';
+  document.getElementById('f-cli-freq').value = c?.freq||'';
+  document.getElementById('btn-del-cli').style.display = id ? 'block' : 'none';
+  abrirModal('modal-cliente');
+}
+
+function salvarCliente() {
+  const nome = document.getElementById('f-cli-nome').value.trim();
+  if (!nome) return alert('Nome obrigatório');
+  if (cliEditando) {
+    const c = D.clientes.find(x=>x.id===cliEditando);
+    if (c) {
+      c.nome=nome; c.emoji=document.getElementById('f-cli-emoji').value;
+      c.ig=document.getElementById('f-cli-ig').value;
+      c.posicionamento=document.getElementById('f-cli-pos').value;
+      c.palavras=document.getElementById('f-cli-palavras').value;
+      c.paleta=document.getElementById('f-cli-paleta').value;
+      c.restricoes=document.getElementById('f-cli-rest').value;
+      c.freq=document.getElementById('f-cli-freq').value;
+    }
+  } else {
+    const id = 'cli'+Date.now();
+    D.clientes.push({
+      id, nome, emoji:document.getElementById('f-cli-emoji').value||'👤',
+      ig:document.getElementById('f-cli-ig').value,
+      posicionamento:document.getElementById('f-cli-pos').value,
+      palavras:document.getElementById('f-cli-palavras').value,
+      paleta:document.getElementById('f-cli-paleta').value,
+      restricoes:document.getElementById('f-cli-rest').value,
+      freq:document.getElementById('f-cli-freq').value,
+      estrategia:{foco:'',regras:'',obs:''}
+    });
+    D.posts[id] = [];
+  }
+  salvar(); fecharModal('modal-cliente'); render();
+}
+
+function deletarClienteAtual() {
+  if (!cliEditando) return;
+  if (!confirm('Remover este cliente e todos os seus posts?')) return;
+  D.clientes = D.clientes.filter(x=>x.id!==cliEditando);
+  delete D.posts[cliEditando];
+  if (clienteAtual===cliEditando) clienteAtual = D.clientes[0]?.id||'';
+  salvar(); fecharModal('modal-cliente'); render();
+}
+
+// ─── ESTRATÉGIA ────────────────────────────────────────────
+function editarEstrategia() {
+  const c = cli();
+  const e = c?.estrategia||{};
+  document.getElementById('f-estr-foco').value = e.foco||'';
+  document.getElementById('f-estr-regras').value = e.regras||'';
+  document.getElementById('f-estr-obs').value = e.obs||'';
+  abrirModal('modal-estr');
+}
+
+function salvarEstrategia() {
+  const c = cli();
+  if (!c) return;
+  c.estrategia = {
+    foco:document.getElementById('f-estr-foco').value,
+    regras:document.getElementById('f-estr-regras').value,
+    obs:document.getElementById('f-estr-obs').value
+  };
+  salvar(); fecharModal('modal-estr'); renderEstrategia();
+}
+
+function abrirConfigGeral() { abrirModalCliente(clienteAtual); }
+
+// ─── MODAL UTILS ────────────────────────────────────────────
+function abrirModal(id) { document.getElementById(id).classList.add('open'); }
+function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => { if(e.target===o) o.classList.remove('open'); }));
+
+// ─── PWA ────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredPrompt = e;
+  const banner = document.getElementById('install-banner');
+  if (banner) banner.style.display = 'flex';
+});
+
+function instalar() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(() => {
+    deferredPrompt = null;
+    const b = document.getElementById('install-banner');
+    if (b) b.style.display = 'none';
+  });
+}
+
+// ─── INIT ────────────────────────────────────────────────────
+carregar();
+render();
+</script>
+</body>
+</html>
