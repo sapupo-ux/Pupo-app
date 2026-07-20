@@ -13,21 +13,27 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#FAF7F2;--white:#FFFFFF;--verde:#3C5A44;--verde-d:#2D5247;
-  --rosa:#D88D70;--cinza:#8A8A8A;--cinza-l:#EEEBE6;--texto:#1A1A1A;
-  --raio:14px;--raio-sm:8px;
+  --bg:#FAFAF8;--white:#FFFFFF;--verde:#3C5A44;--verde-d:#243B31;
+  --rosa:#D88D70;--cinza:#9A9A96;--cinza-l:#ECEAE5;--texto:#1C1C1A;
+  --raio:16px;--raio-sm:10px;
 }
-html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--texto)}
+html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--texto);-webkit-font-smoothing:antialiased}
 
 /* LAYOUT */
 #app{display:flex;flex-direction:column;height:100%;height:100dvh}
-#main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:80px}
+#main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:84px}
 
 /* HEADER */
-.hdr{background:var(--verde-d);padding:env(safe-area-inset-top,16px) 16px 14px;display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
-.hdr-left h1{font-size:11px;color:var(--rosa);letter-spacing:1.5px;text-transform:uppercase;font-weight:500;margin-bottom:2px}
-.hdr-left h2{font-size:20px;color:var(--bg);font-weight:700}
-.hdr-right button{background:rgba(255,255,255,0.12);border:none;color:var(--bg);width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.hdr{background:var(--verde-d);padding:env(safe-area-inset-top,18px) 18px 16px;display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
+.hdr-left h1{font-size:10.5px;color:var(--rosa);letter-spacing:1.8px;text-transform:uppercase;font-weight:600;margin-bottom:3px}
+.hdr-left h2{font-size:21px;color:var(--bg);font-weight:600;letter-spacing:-.2px}
+.hdr-right button{background:rgba(255,255,255,0.08);border:none;color:var(--bg);width:36px;height:36px;border-radius:50%;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.hdr-right button:active{background:rgba(255,255,255,0.18)}
+
+/* UPDATE BANNER */
+.update-banner{display:none;position:fixed;top:0;left:0;right:0;background:var(--rosa);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 10px;font-size:13px;font-weight:600;align-items:center;justify-content:space-between;z-index:500;gap:10px}
+.update-banner.show{display:flex}
+.update-banner button{background:rgba(255,255,255,.22);border:none;color:#fff;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
 
 /* CLIENTES SCROLL */
 .clientes-nav{background:var(--verde-d);padding:0 12px 12px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid rgba(255,255,255,0.08)}
@@ -64,15 +70,16 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 /* POSTS */
 .posts-lista{padding:0 16px;display:flex;flex-direction:column;gap:10px}
 
-.post-card{background:var(--white);border-radius:var(--raio);overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.07)}
-.post-head{display:flex;align-items:center;padding:12px 14px;gap:10px;cursor:pointer;position:relative}
-.post-data{background:var(--bg);border-radius:var(--raio-sm);padding:6px 10px;text-align:center;min-width:48px;flex-shrink:0}
-.post-data .d{font-size:18px;font-weight:700;color:var(--verde-d);line-height:1}
-.post-data .s{font-size:10px;color:var(--cinza);text-transform:uppercase;letter-spacing:.5px}
+.post-card{background:var(--white);border-radius:var(--raio);overflow:hidden;border:1px solid var(--cinza-l);transition:border-color .15s}
+.post-head{display:flex;align-items:center;padding:13px 14px;gap:11px;cursor:pointer;position:relative}
+.post-data{background:var(--bg);border-radius:var(--raio-sm);padding:6px 10px;text-align:center;min-width:46px;flex-shrink:0}
+.post-data .d{font-size:17px;font-weight:700;color:var(--verde-d);line-height:1.1}
+.post-data .s{font-size:9.5px;color:var(--cinza);text-transform:uppercase;letter-spacing:.6px}
 .post-info{flex:1;min-width:0}
-.post-titulo{font-size:14px;font-weight:600;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.post-titulo{font-size:14px;font-weight:600;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.1px}
+.post-intencao-preview{font-size:11.5px;color:var(--cinza);line-height:1.35;margin-bottom:7px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
 .tags{display:flex;gap:5px;flex-wrap:wrap}
-.tag{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500;white-space:nowrap}
+.tag{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:600;white-space:nowrap;letter-spacing:.2px}
 .t-fmt{background:#EDF2EE;color:var(--verde)}
 .t-obj{background:#FDF0EA;color:#B5622A}
 .t-ia{background:#F0EDF8;color:#6B4FA0}
@@ -124,7 +131,8 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 /* MODAIS */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:flex-end;justify-content:center}
 .overlay.open{display:flex}
-.modal{background:var(--white);border-radius:20px 20px 0 0;padding:20px 20px env(safe-area-inset-bottom,24px);width:100%;max-height:90vh;overflow-y:auto}
+.modal{background:var(--white);border-radius:22px 22px 0 0;padding:12px 20px env(safe-area-inset-bottom,24px);width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 -8px 32px rgba(0,0,0,.12)}
+.modal::before{content:'';display:block;width:36px;height:4px;background:var(--cinza-l);border-radius:4px;margin:0 auto 14px}
 .modal-titulo{font-size:16px;font-weight:700;margin-bottom:16px;color:var(--verde-d)}
 .modal-fecha{float:right;background:var(--bg);border:none;width:28px;height:28px;border-radius:50%;font-size:16px;cursor:pointer;margin-top:-2px}
 
@@ -159,6 +167,10 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 </style>
 </head>
 <body>
+<div class="update-banner" id="update-banner">
+  <span>🔄 Nova versão disponível</span>
+  <button onclick="aplicarAtualizacao()">Atualizar agora</button>
+</div>
 <div id="app">
   <div class="hdr">
     <div class="hdr-left">
@@ -348,27 +360,27 @@ const DEF = {
        intencao:'Atender pedido da cliente de mostrar Peruíbe. Formato guia de viagem tem o maior potencial de save do nicho — pessoas guardam pra consultar quando planejarem a viagem.',
        slides:'S1: "Antes de voltar pra casa, passe aqui.." (pôr do sol)\nS2: Praia do Caramborê (foto Unsplash)\nS3: Prainha (foto Unsplash)\nS4: Praia do Guaraú (foto Unsplash)\nS5: Praia do Costão (foto Unsplash)\nS6: "Salva esse roteiro. A Casa Flor do Mar te espera."',
        legenda:'Peruíbe não é só uma praia. São várias — cada uma com um jeito diferente de te fazer desacelerar.\n\n💾 Salva esse roteiro pra próxima viagem.\n📍 Link na bio pra ver a Casa Flor do Mar.\n\nQual você visitaria primeiro? 👇\n\n#peruibe #praiasp #litoralsul #roteirodeviagem #casaflordomar',
-       prompt:'',feedback:{nota:0,texto:''}},
+       prompt:'Crie carrossel de 6 slides estilo guia de viagem. Paleta: creme #FAF7F2, verde #3C5A44, verde escuro #2D5247. Slide 1: foto de pôr do sol na praia com texto sobreposto Antes de voltar pra casa, passe aqui... Slides 2 a 5: uma foto de praia por slide (Caramborê, Prainha, Guaraú, Costão), nome da praia em faixa creme inferior, tipografia serifada. Slide 6: fundo verde escuro, texto creme Salva esse roteiro. A Casa Flor do Mar te espera, mais logo e link. Estética editorial de revista de viagem, bordas limpas, sem elementos florais.',feedback:{nota:0,texto:''}},
       {id:'f5',data:'2026-07-15',titulo:'Um dia perfeito em Peruíbe',formato:'Carrossel',objetivo:'Identificação',ia:'ChatGPT',status:'pend',
        intencao:'Roteiro emocional de como seria um dia na casa. Conteúdo aspiracional que as pessoas guardam pra sonhar antes de reservar. Alto potencial de save.',
        slides:'S1: "Como seria o seu dia perfeito em Peruíbe?"\nS2: "Acordar sem despertador. Café no seu ritmo." (sala/cozinha)\nS3: "A manhã inteira pra decidir: praia agora ou praia depois?"\nS4: "Almoço no quintal. Churrasco, conversa, sem relógio." (quintal)\nS5: "Esse dia existe. 💾 Salva pra planejar. 🔗 Link na bio."',
        legenda:'Às vezes a gente esquece como é ter um dia sem agenda.\n\nNa Casa Flor do Mar, esse é o padrão.\n\n📍 Peruíbe, SP · 🛏️ 3 quartos · 🔗 Link na bio\n\nManda esse post pra quem você quer levar. 👇\n\n#peruibe #casadetemporada #feriasemfamilia #litoralsul #casaflordomar',
-       prompt:'',feedback:{nota:0,texto:''}},
+       prompt:'Crie carrossel de 5 slides. Paleta: creme #FAF7F2, verde #3C5A44, rosa #D88D70. Tom aspiracional e calmo. Slide 1: fundo creme, texto grande Como seria o seu dia perfeito em Peruíbe? Slide 2: foto sala/cozinha com frase Acordar sem despertador. Café no seu ritmo. Slide 3: foto quintal com frase A manhã inteira pra decidir: praia agora ou praia depois? Slide 4: foto quintal/churrasqueira com frase Almoço no quintal. Churrasco, conversa, sem relógio. Slide 5: fundo verde escuro, texto creme Esse dia existe. Salva pra planejar. Link na bio. Tipografia serifada elegante, estética de revista de lifestyle, sem flores como elemento gráfico.',feedback:{nota:0,texto:''}},
       {id:'f6',data:'2026-07-17',titulo:'A Casa foi feita para quem...',formato:'Carrossel',objetivo:'Compartilhamento',ia:'Nano Banana',status:'pend',
        intencao:'Identificação forte. Quando alguém se reconhece no perfil do hóspede ideal, marca alguém ou compartilha. Objetivo: primeiro compartilhamento orgânico real.',
        slides:'S1: "A Casa Flor do Mar foi feita para quem..."\nS2: "...prefere churrasco no quintal a fila no restaurante."\nS3: "...quer acordar sem despertador pelo menos uma vez no ano."\nS4: "...sabe que as melhores conversas não têm hora pra acabar."\nS5: "Esse é você? Link na bio. 🔗"',
        legenda:'Nem todo mundo precisa de resort.\n\nTem gente que só quer um quintal, um churrasco e ninguém com pressa.\n\n📍 Peruíbe, SP · 🔗 Link na bio\n\nMarca aqui quem também é assim. 👇\n\n#peruibe #casadetemporada #feriasemfamilia #casaflordomar #litoralsul',
-       prompt:'',feedback:{nota:0,texto:''}},
+       prompt:'Crie carrossel de 5 slides, cada um com frase curta continuando A Casa Flor do Mar foi feita para quem... Paleta: creme #FAF7F2, verde #3C5A44, rosa #D88D70. Slide 1: fundo creme com a frase de abertura em tipografia serifada grande. Slides 2 a 4: fundo verde escuro #2D5247, texto creme, uma frase de identificação por slide (churrasco no quintal vs fila de restaurante; acordar sem despertador; conversas sem hora pra acabar). Slide 5: fundo creme, texto Esse é você? Link na bio, com ícone de link. Estética minimalista, respiro visual generoso, sem elementos florais.',feedback:{nota:0,texto:''}},
       {id:'f7',data:'2026-07-22',titulo:'Julho está acabando',formato:'Carrossel',objetivo:'Conversão',ia:'ChatGPT',status:'pend',
        intencao:'Urgência máxima. Final de julho = última janela antes do segundo semestre. CTA direto de conversão via comentário.',
        slides:'S1: "Julho está acabando."\nS2: "E com ele, a última chance de desacelerar antes do segundo semestre."\nS3: "Ainda tem data. Mas não por muito tempo." (exterior)\nS4: "🔗 Link na bio. Garante a sua."',
        legenda:'Julho tem pouco tempo — e a Casa Flor do Mar também.\n\nÚltimas datas abertas antes do fim da temporada.\n\n📍 Peruíbe, SP · 🔗 Link na bio\n\nComenta JULHO que te mando as datas disponíveis. 👇\n\n#peruibe #casadetemporada #julho #litoralsul #casaflordomar',
-       prompt:'',feedback:{nota:0,texto:''}},
+       prompt:'Crie carrossel de 4 slides com tom de urgência crescente. Paleta: creme #FAF7F2, verde escuro #2D5247, rosa #D88D70. Slide 1: fundo verde escuro, texto creme grande Julho está acabando. Slide 2: mesma paleta, texto E com ele, a última chance de desacelerar antes do segundo semestre. Slide 3: foto exterior da casa com faixa creme inferior e texto Ainda tem data. Mas não por muito tempo. Slide 4: fundo rosa #D88D70, texto branco Link na bio. Garante a sua. Tipografia serifada, contraste forte entre slides para reforçar urgência, sem elementos florais.',feedback:{nota:0,texto:''}},
       {id:'f8',data:'2026-07-24',titulo:'Agosto e os feriados que vêm',formato:'Carrossel',objetivo:'Aquecimento',ia:'ChatGPT',status:'pend',
        intencao:'Manter o perfil ativo após o pico de julho. Plantar semente para agosto sem deixar o perfil morrer no final do mês.',
        slides:'S1: "Julho passou rápido, né?"\nS2: "Mas o litoral não vai a lugar nenhum."\nS3: "Agosto tem feriados. E a Casa Flor do Mar tem datas."\nS4: "💾 Salva pra planejar o próximo escape."',
        legenda:'Julho acabou. Mas o descanso não precisa acabar com ele.\n\nAgosto tem feriados — e a Casa Flor do Mar tem datas abertas.\n\n📍 Peruíbe, SP · 🔗 Link na bio\n\nQual feriado você quer usar pra descansar? Comenta. 👇\n\n#peruibe #casadetemporada #agosto #feriado #casaflordomar',
-       prompt:'',feedback:{nota:0,texto:''}}
+       prompt:'Crie carrossel de 4 slides, tom leve e continuidade. Paleta: creme #FAF7F2, verde #3C5A44, rosa #D88D70. Slide 1: fundo creme, texto Julho passou rápido, né? Slide 2: fundo verde, texto creme Mas o litoral não vai a lugar nenhum. Slide 3: foto exterior/quintal com faixa creme, texto Agosto tem feriados. E a Casa Flor do Mar tem datas. Slide 4: fundo creme, ícone de salvar, texto Salva pra planejar o próximo escape. Tipografia serifada, estética leve e acolhedora, sem elementos florais.',feedback:{nota:0,texto:''}}
     ],
     amarela:[],karla:[],deuseni:[]
   }
@@ -444,6 +456,7 @@ function renderPosts() {
           <div class="post-data"><div class="d">${dt.dia}</div><div class="s">${dt.sem}</div></div>
           <div class="post-info">
             <div class="post-titulo">${p.titulo}</div>
+            ${p.intencao?`<div class="post-intencao-preview">${p.intencao}</div>`:''}
             <div class="tags">
               <span class="tag t-fmt">${p.formato}</span>
               <span class="tag t-obj">${p.objetivo}</span>
@@ -455,8 +468,8 @@ function renderPosts() {
         <div class="post-body" id="body-${p.id}">
           ${p.intencao?`<div class="detalhe"><div class="d-label">Intenção Estratégica</div><div class="box box-int">${p.intencao}</div></div>`:''}
           ${p.slides?`<div class="detalhe"><div class="d-label">Slides / Estrutura</div><div class="slides">${p.slides.split('\n').map(s=>`<div class="slide">${s}</div>`).join('')}</div></div>`:''}
-          ${p.legenda?`<div class="detalhe"><div class="d-label">Legenda</div><div class="box box-leg">${p.legenda.replace(/\n/g,'<br>')}</div><button class="btn-copy" onclick="copiar(this,\`${p.legenda.replace(/`/g,"'")}\`)">Copiar Legenda</button></div>`:''}
-          ${p.prompt?`<div class="detalhe"><div class="d-label">Prompt — ${p.ia}</div><div class="box box-prompt">${p.prompt}</div><button class="btn-copy" onclick="copiar(this,\`${p.prompt.replace(/`/g,"'")}\`)">Copiar Prompt</button></div>`:''}
+          ${p.legenda?`<div class="detalhe"><div class="d-label">Legenda</div><div class="box box-leg">${p.legenda.replace(/\n/g,'<br>')}</div><button class="btn-copy" data-copy-post="${p.id}" data-copy-campo="legenda">Copiar Legenda</button></div>`:''}
+          ${p.prompt?`<div class="detalhe"><div class="d-label">Prompt — ${p.ia}</div><div class="box box-prompt">${p.prompt}</div><button class="btn-copy" data-copy-post="${p.id}" data-copy-campo="prompt">Copiar Prompt</button></div>`:''}
           <div class="detalhe">
             <div class="d-label">Feedback do Post</div>
             <div class="feedback-area">
@@ -606,20 +619,40 @@ function salvarFeedback(postId) {
   }, 50);
 }
 
-function copiar(btn, texto) {
-  navigator.clipboard.writeText(texto).then(() => {
-    const orig = btn.textContent;
+function copiarTexto(btn, texto) {
+  const orig = btn.textContent;
+  const marcarCopiado = () => {
     btn.textContent = '✓ Copiado!';
     btn.style.background = 'var(--verde-d)';
     setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 2000);
-  }).catch(() => {
-    const ta = document.createElement('textarea');
-    ta.value = texto; document.body.appendChild(ta);
-    ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-    btn.textContent = '✓ Copiado!';
-    setTimeout(() => btn.textContent = btn.textContent.includes('Legenda') ? 'Copiar Legenda' : 'Copiar Prompt', 2000);
-  });
+  };
+  const fallback = () => {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = texto; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      marcarCopiado();
+    } catch(e) { alert('Não foi possível copiar automaticamente. Selecione o texto manualmente.'); }
+  };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(texto).then(marcarCopiado).catch(fallback);
+  } else {
+    fallback();
+  }
 }
+
+// Delegação de evento: o texto sempre vem direto do objeto post (nunca de atributo HTML),
+// então aspas, emojis ou quebras de linha no conteúdo nunca quebram o botão.
+document.getElementById('lista-posts').addEventListener('click', e => {
+  const btn = e.target.closest('[data-copy-post]');
+  if (!btn) return;
+  const posts = D.posts[clienteAtual] || [];
+  const p = posts.find(x => x.id === btn.dataset.copyPost);
+  if (!p) return;
+  const texto = btn.dataset.copyCampo === 'prompt' ? (p.prompt||'') : (p.legenda||'');
+  copiarTexto(btn, texto);
+});
 
 // ─── MODAIS POST ────────────────────────────────────────────
 function abrirModalPost(id) {
@@ -737,10 +770,11 @@ function salvarCliente() {
 
 function deletarClienteAtual() {
   if (!cliEditando) return;
+  if (D.clientes.length <= 1) { alert('Você precisa manter ao menos 1 cliente.'); return; }
   if (!confirm('Remover este cliente e todos os seus posts?')) return;
   D.clientes = D.clientes.filter(x=>x.id!==cliEditando);
   delete D.posts[cliEditando];
-  if (clienteAtual===cliEditando) clienteAtual = D.clientes[0]?.id||'';
+  if (clienteAtual===cliEditando) clienteAtual = D.clientes[0].id;
   salvar(); fecharModal('modal-cliente'); render();
 }
 
@@ -772,9 +806,43 @@ function abrirModal(id) { document.getElementById(id).classList.add('open'); }
 function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
 document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => { if(e.target===o) o.classList.remove('open'); }));
 
-// ─── PWA ────────────────────────────────────────────────────
+// ─── PWA / AUTO-ATUALIZAÇÃO ─────────────────────────────────
+let swAguardando = null;
+
+function aplicarAtualizacao() {
+  if (swAguardando) swAguardando.postMessage('skipWaiting');
+}
+
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    // Verifica se já existe uma atualização esperando
+    if (reg.waiting) {
+      swAguardando = reg.waiting;
+      document.getElementById('update-banner').classList.add('show');
+    }
+    // Detecta quando uma nova versão termina de instalar
+    reg.addEventListener('updatefound', () => {
+      const novo = reg.installing;
+      novo.addEventListener('statechange', () => {
+        if (novo.state === 'installed' && navigator.serviceWorker.controller) {
+          swAguardando = novo;
+          document.getElementById('update-banner').classList.add('show');
+        }
+      });
+    });
+    // Checa por atualização toda vez que o app volta a ficar visível
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') reg.update();
+    });
+  }).catch(()=>{});
+
+  // Quando a nova versão assume o controle, recarrega a página automaticamente
+  let jaRecarregou = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (jaRecarregou) return;
+    jaRecarregou = true;
+    window.location.reload();
+  });
 }
 
 let deferredPrompt;
